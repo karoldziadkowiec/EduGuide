@@ -1,18 +1,32 @@
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 public class RemoveStudentPage {
     JFrame frame;
     JPanel leftPanel, upperPanel, mainPanel;
-    JLabel infoLabel;
+    JLabel infoLabel, descLabel;
     JButton menuButton, addStudentButton, editStudentButton, removeStudentButton, studentListButton, gradesButton, editGradesButton, exitButton;
     Font appFont = new Font("Arial", Font.TRUETYPE_FONT, 22);
+    JButton removeButton, closeButton;
+    JTextField indexTextField;
+    JTable studentTable;
+    JScrollPane tableScrollPane;
 
     RemoveStudentPage() {
         initializeFrame();
         addComponents();
+        displayData();
+        addTableSelectionListener();
         openNewWindow();
         frame.setVisible(true);
     }
@@ -117,6 +131,93 @@ public class RemoveStudentPage {
         Font infoFont = new Font("Comic Sans MS", Font.BOLD, 30);
         infoLabel.setFont(infoFont);
         mainPanel.add(infoLabel);
+
+        studentTable = new JTable();
+        tableScrollPane = new JScrollPane(studentTable);
+        tableScrollPane.setBounds(30, 80, 630, 200);
+        mainPanel.add(tableScrollPane);
+
+        descLabel = new JLabel("Index:");
+        descLabel.setBounds(130, 300, 200, 50);
+        descLabel.setForeground(new Color(1, 56, 128));
+        descLabel.setFont(appFont);
+        mainPanel.add(descLabel);
+
+        indexTextField = new JTextField();
+        indexTextField.setBounds(195, 305, 200, 40);
+        indexTextField.setForeground(Color.BLACK);
+        indexTextField.setFont(appFont);
+        mainPanel.add(indexTextField);
+
+        removeButton = new JButton("Remove student");
+        removeButton.setLayout(null);
+        removeButton.setBounds(450, 300, 200, 50);
+        removeButton.setBackground(new Color(1, 56, 128));
+        removeButton.setForeground(Color.WHITE);
+        removeButton.setFont(appFont);
+        mainPanel.add(removeButton);
+
+        closeButton = new JButton("Close");
+        closeButton.setLayout(null);
+        closeButton.setBounds(450, 365, 200, 50);
+        closeButton.setBackground(new Color(1, 56, 128));
+        closeButton.setForeground(Color.WHITE);
+        closeButton.setFont(appFont);
+        mainPanel.add(closeButton);
+    }
+
+    private void displayData() {
+        try {
+            Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/eduguide", "root", "");
+            String query = "SELECT groupNumber, surname, name, indexNumber, email FROM students ORDER BY groupNumber, surname";
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            DefaultTableModel model = new DefaultTableModel();
+            model.addColumn("Group");
+            model.addColumn("Surname");
+            model.addColumn("Name");
+            model.addColumn("Index Number");
+            model.addColumn("Email");
+
+            while (resultSet.next()) {
+                int groupNumber = resultSet.getInt("groupNumber");
+                String surname = resultSet.getString("surname");
+                String name = resultSet.getString("name");
+                int indexNumber = resultSet.getInt("indexNumber");
+                String email = resultSet.getString("email");
+
+                model.addRow(new Object[]{groupNumber, surname, name, indexNumber, email});
+            }
+
+            studentTable.setModel(model);
+
+            resultSet.close();
+            preparedStatement.close();
+            connection.close();
+        }
+        catch (SQLException ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Error: " + ex.getMessage());
+        }
+    }
+
+    private void addTableSelectionListener() {
+        studentTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                if (!e.getValueIsAdjusting()) {
+                    int selectedRow = studentTable.getSelectedRow();
+                    if (selectedRow >= 0) {
+                        Object indexNumberObj = studentTable.getValueAt(selectedRow, 3);
+                        if (indexNumberObj != null) {
+                            String indexNumber = indexNumberObj.toString();
+                            indexTextField.setText(indexNumber);
+                        }
+                    }
+                }
+            }
+        });
     }
 
     private void openNewWindow() {
@@ -169,11 +270,69 @@ public class RemoveStudentPage {
             }
         });
 
+        removeButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                String indexToRemove = indexTextField.getText();
+
+                if (indexToRemove.isEmpty()) {
+                    JOptionPane.showMessageDialog(null, "Please enter the index number of the student to remove.");
+                    return;
+                }
+
+                int confirmed = JOptionPane.showConfirmDialog(
+                        null,
+                        "Are you sure you want to remove the student with index number: " + indexToRemove + "?",
+                        "Confirm Deletion",
+                        JOptionPane.YES_NO_OPTION
+                );
+
+                if (confirmed == JOptionPane.YES_OPTION) {
+                    removeStudent(indexToRemove);
+                    displayData();
+                }
+            }
+        });
+
+        closeButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                frame.dispose();
+                new MainPage();
+            }
+        });
+
         exitButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 frame.dispose();
             }
         });
+    }
+
+    private void removeStudent(String indexToRemove) {
+        try {
+            Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/eduguide", "root", "");
+            String deleteQuery = "DELETE FROM students WHERE indexNumber = ?";
+            PreparedStatement preparedStatement = connection.prepareStatement(deleteQuery);
+
+            preparedStatement.setString(1, indexToRemove);
+
+            int deletedRows = preparedStatement.executeUpdate();
+
+            if (deletedRows > 0) {
+                JOptionPane.showMessageDialog(null, "Student removed successfully.");
+                frame.dispose();
+                new StudentListPage();
+            }
+            else {
+                JOptionPane.showMessageDialog(null, "No student with the provided index number found.");
+            }
+
+            preparedStatement.close();
+            connection.close();
+        }
+        catch (SQLException ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Error: " + ex.getMessage());
+        }
     }
 
     public static void main(String[] args) {

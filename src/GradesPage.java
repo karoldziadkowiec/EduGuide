@@ -1,18 +1,30 @@
+import com.sun.tools.javac.Main;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import javax.swing.table.DefaultTableModel;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class GradesPage {
     JFrame frame;
     JPanel leftPanel, upperPanel, mainPanel;
     JLabel infoLabel;
     JButton menuButton, addStudentButton, editStudentButton, removeStudentButton, studentListButton, gradesButton, editGradesButton, exitButton;
+    JButton closeButton;
     Font appFont = new Font("Arial", Font.TRUETYPE_FONT, 22);
+    JTable gradesTable;
+    JScrollPane tableScrollPane;
 
     GradesPage() {
         initializeFrame();
         addComponents();
+        displayData();
         openNewWindow();
         frame.setVisible(true);
     }
@@ -117,6 +129,51 @@ public class GradesPage {
         Font infoFont = new Font("Comic Sans MS", Font.BOLD, 30);
         infoLabel.setFont(infoFont);
         mainPanel.add(infoLabel);
+
+        gradesTable = new JTable();
+        tableScrollPane = new JScrollPane(gradesTable);
+        tableScrollPane.setBounds(30, 80, 630, 250);
+        mainPanel.add(tableScrollPane);
+
+        closeButton = new JButton("Close");
+        closeButton.setLayout(null);
+        closeButton.setBounds(450, 345, 200, 50);
+        closeButton.setBackground(new Color(1, 56, 128));
+        closeButton.setForeground(Color.WHITE);
+        closeButton.setFont(appFont);
+        mainPanel.add(closeButton);
+    }
+
+    private void displayData() {
+        try {
+            Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/eduguide", "root", "");
+            String query = "SELECT students.surname, students.name, grades.grade, grades.description FROM grades INNER JOIN students ON students.id = grades.student ORDER BY students.surname, grades.description";
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            DefaultTableModel model = new DefaultTableModel();
+            model.addColumn("Student Name");
+            model.addColumn("Grade");
+            model.addColumn("Description");
+
+            while (resultSet.next()) {
+                String studentName = resultSet.getString("name") + " " + resultSet.getString("surname");
+                String grade = resultSet.getString("grade");
+                String description = resultSet.getString("description");
+
+                model.addRow(new Object[]{studentName, grade, description});
+            }
+
+            gradesTable.setModel(model);
+
+            resultSet.close();
+            preparedStatement.close();
+            connection.close();
+        }
+        catch (SQLException ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Error: " + ex.getMessage());
+        }
     }
 
     private void openNewWindow() {
@@ -166,6 +223,13 @@ public class GradesPage {
             public void actionPerformed(ActionEvent e) {
                 frame.dispose();
                 new EditGradesPage();
+            }
+        });
+
+        closeButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                frame.dispose();
+                new MainPage();
             }
         });
 

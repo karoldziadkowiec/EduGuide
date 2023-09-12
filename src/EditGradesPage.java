@@ -1,18 +1,28 @@
 import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.*;
 
 public class EditGradesPage {
     JFrame frame;
     JPanel leftPanel, upperPanel, mainPanel;
-    JLabel infoLabel;
+    JLabel infoLabel, descLabel;
     JButton menuButton, addStudentButton, editStudentButton, removeStudentButton, studentListButton, gradesButton, editGradesButton, exitButton;
+    JButton addButton, editButton, removeButton, closeButton;
+    JTextField gradeTextField;
     Font appFont = new Font("Arial", Font.TRUETYPE_FONT, 22);
-
+    JTable gradesTable;
+    JScrollPane tableScrollPane;
+    String grade;
     EditGradesPage() {
         initializeFrame();
         addComponents();
+        displayData();
+        addTableSelectionListener();
         openNewWindow();
         frame.setVisible(true);
     }
@@ -117,6 +127,105 @@ public class EditGradesPage {
         Font infoFont = new Font("Comic Sans MS", Font.BOLD, 30);
         infoLabel.setFont(infoFont);
         mainPanel.add(infoLabel);
+
+        addButton = new JButton("Add grade");
+        addButton.setLayout(null);
+        addButton.setBounds(450, 20, 200, 50);
+        addButton.setBackground(new Color(1, 56, 128));
+        addButton.setForeground(Color.WHITE);
+        addButton.setFont(appFont);
+        mainPanel.add(addButton);
+
+        gradesTable = new JTable();
+        tableScrollPane = new JScrollPane(gradesTable);
+        tableScrollPane.setBounds(30, 80, 630, 200);
+        mainPanel.add(tableScrollPane);
+
+        descLabel = new JLabel("Grade:");
+        descLabel.setBounds(150, 300, 200, 50);
+        descLabel.setForeground(new Color(1, 56, 128));
+        descLabel.setFont(appFont);
+        mainPanel.add(descLabel);
+
+        gradeTextField = new JTextField();
+        gradeTextField.setBounds(220, 305, 200, 40);
+        gradeTextField.setForeground(Color.BLACK);
+        gradeTextField.setFont(appFont);
+        mainPanel.add(gradeTextField);
+
+        closeButton = new JButton("Close");
+        closeButton.setLayout(null);
+        closeButton.setBounds(30, 355, 200, 50);
+        closeButton.setBackground(new Color(1, 56, 128));
+        closeButton.setForeground(Color.WHITE);
+        closeButton.setFont(appFont);
+        mainPanel.add(closeButton);
+
+        editButton = new JButton("Edit grade");
+        editButton.setLayout(null);
+        editButton.setBounds(450, 300, 200, 50);
+        editButton.setBackground(new Color(1, 56, 128));
+        editButton.setForeground(Color.WHITE);
+        editButton.setFont(appFont);
+        mainPanel.add(editButton);
+
+        removeButton = new JButton("Remove grade");
+        removeButton.setLayout(null);
+        removeButton.setBounds(450, 355, 200, 50);
+        removeButton.setBackground(new Color(1, 56, 128));
+        removeButton.setForeground(Color.WHITE);
+        removeButton.setFont(appFont);
+        mainPanel.add(removeButton);
+    }
+
+    private void displayData() {
+        try {
+            Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/eduguide", "root", "");
+            String query = "SELECT students.surname, students.name, grades.grade, grades.description FROM grades INNER JOIN students ON students.id = grades.student ORDER BY students.surname, grades.description";
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            DefaultTableModel model = new DefaultTableModel();
+            model.addColumn("Student Name");
+            model.addColumn("Grade");
+            model.addColumn("Description");
+
+            while (resultSet.next()) {
+                String studentName = resultSet.getString("name") + " " + resultSet.getString("surname");
+                String grade = resultSet.getString("grade");
+                String description = resultSet.getString("description");
+
+                model.addRow(new Object[]{studentName, grade, description});
+            }
+
+            gradesTable.setModel(model);
+
+            resultSet.close();
+            preparedStatement.close();
+            connection.close();
+        }
+        catch (SQLException ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Error: " + ex.getMessage());
+        }
+    }
+
+    private void addTableSelectionListener() {
+        gradesTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                if (!e.getValueIsAdjusting()) {
+                    int selectedRow = gradesTable.getSelectedRow();
+                    if (selectedRow >= 0) {
+                        Object indexNumberObj = gradesTable.getValueAt(selectedRow, 1);
+                        if (indexNumberObj != null) {
+                            String indexNumber = indexNumberObj.toString();
+                            gradeTextField.setText(indexNumber);
+                        }
+                    }
+                }
+            }
+        });
     }
 
     private void openNewWindow() {
@@ -166,6 +275,34 @@ public class EditGradesPage {
             public void actionPerformed(ActionEvent e) {
                 frame.dispose();
                 new EditGradesPage();
+            }
+        });
+
+        addButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                frame.dispose();
+                new AddGradePage();
+            }
+        });
+
+        editButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                frame.dispose();
+                new EditSelectedGradePage(grade);
+            }
+        });
+
+        removeButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                frame.dispose();
+                new GradesPage();
+            }
+        });
+
+        closeButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                frame.dispose();
+                new MainPage();
             }
         });
 

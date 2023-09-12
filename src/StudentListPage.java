@@ -2,17 +2,27 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import javax.swing.table.DefaultTableModel;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class StudentListPage {
     JFrame frame;
     JPanel leftPanel, upperPanel, mainPanel;
     JLabel infoLabel;
     JButton menuButton, addStudentButton, editStudentButton, removeStudentButton, studentListButton, gradesButton, editGradesButton, exitButton;
+    JButton closeButton;
     Font appFont = new Font("Arial", Font.TRUETYPE_FONT, 22);
+    JTable studentTable;
+    JScrollPane tableScrollPane;
 
     StudentListPage() {
         initializeFrame();
         addComponents();
+        displayData();
         openNewWindow();
         frame.setVisible(true);
     }
@@ -117,6 +127,55 @@ public class StudentListPage {
         Font infoFont = new Font("Comic Sans MS", Font.BOLD, 30);
         infoLabel.setFont(infoFont);
         mainPanel.add(infoLabel);
+
+        studentTable = new JTable();
+        tableScrollPane = new JScrollPane(studentTable);
+        tableScrollPane.setBounds(30, 80, 630, 250);
+        mainPanel.add(tableScrollPane);
+
+        closeButton = new JButton("Close");
+        closeButton.setLayout(null);
+        closeButton.setBounds(450, 345, 200, 50);
+        closeButton.setBackground(new Color(1, 56, 128));
+        closeButton.setForeground(Color.WHITE);
+        closeButton.setFont(appFont);
+        mainPanel.add(closeButton);
+    }
+
+    private void displayData() {
+        try {
+            Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/eduguide", "root", "");
+            String query = "SELECT groupNumber, surname, name, indexNumber, email FROM students ORDER BY groupNumber, surname";
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            DefaultTableModel model = new DefaultTableModel();
+            model.addColumn("Group");
+            model.addColumn("Surname");
+            model.addColumn("Name");
+            model.addColumn("Index Number");
+            model.addColumn("Email");
+
+            while (resultSet.next()) {
+                int groupNumber = resultSet.getInt("groupNumber");
+                String surname = resultSet.getString("surname");
+                String name = resultSet.getString("name");
+                int indexNumber = resultSet.getInt("indexNumber");
+                String email = resultSet.getString("email");
+
+                model.addRow(new Object[]{groupNumber, surname, name, indexNumber, email});
+            }
+
+            studentTable.setModel(model);
+
+            resultSet.close();
+            preparedStatement.close();
+            connection.close();
+        }
+        catch (SQLException ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Error: " + ex.getMessage());
+        }
     }
 
     private void openNewWindow() {
@@ -169,6 +228,13 @@ public class StudentListPage {
             }
         });
 
+        closeButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                frame.dispose();
+                new MainPage();
+            }
+        });
+
         exitButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 frame.dispose();
@@ -177,6 +243,6 @@ public class StudentListPage {
     }
 
     public static void main(String[] args) {
-        StudentListPage app = new StudentListPage();
+
     }
 }

@@ -1,35 +1,35 @@
 import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import javax.swing.table.DefaultTableModel;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 
-public class EditStudentPage {
+public class EditSelectedStudentPage {
     JFrame frame;
     JPanel leftPanel, upperPanel, mainPanel;
     JLabel infoLabel, descLabel;
     JButton menuButton, addStudentButton, editStudentButton, removeStudentButton, studentListButton, gradesButton, editGradesButton, exitButton;
-    JButton editButton, closeButton;
-    JTextField indexTextField;
+    JButton saveButton, closeButton;
+    JTextField nameTextField, surnameTextField, indexTextField, groupTextField, emailTextField;
     Font appFont = new Font("Arial", Font.TRUETYPE_FONT, 22);
-    JTable studentTable;
-    JScrollPane tableScrollPane;
 
-    EditStudentPage() {
+    int index;
+
+    EditSelectedStudentPage(int selectedIndex) {
+        index = selectedIndex;
+
         initializeFrame();
         addComponents();
-        displayData();
-        addTableSelectionListener();
+        populateFieldsWithStudentData(index);
         openNewWindow();
         frame.setVisible(true);
     }
+
     private void initializeFrame() {
         frame = new JFrame("EduGuide");
         frame.setLayout(null);
@@ -131,30 +131,73 @@ public class EditStudentPage {
         infoLabel.setFont(infoFont);
         mainPanel.add(infoLabel);
 
-        studentTable = new JTable();
-        tableScrollPane = new JScrollPane(studentTable);
-        tableScrollPane.setBounds(30, 80, 630, 200);
-        mainPanel.add(tableScrollPane);
+        descLabel = new JLabel("Name:");
+        descLabel.setBounds(150, 80, 200, 50);
+        descLabel.setForeground(new Color(1, 56, 128));
+        descLabel.setFont(appFont);
+        mainPanel.add(descLabel);
 
-        descLabel = new JLabel("Index:");
-        descLabel.setBounds(130, 300, 200, 50);
+        nameTextField = new JTextField();
+        nameTextField.setBounds(220, 85, 200, 40);
+        nameTextField.setForeground(Color.BLACK);
+        nameTextField.setFont(appFont);
+        mainPanel.add(nameTextField);
+
+        descLabel = new JLabel("Surname:");
+        descLabel.setBounds(150, 130, 200, 50);
+        descLabel.setForeground(new Color(1, 56, 128));
+        descLabel.setFont(appFont);
+        mainPanel.add(descLabel);
+
+        surnameTextField = new JTextField();
+        surnameTextField.setBounds(250, 135, 200, 40);
+        surnameTextField.setForeground(Color.BLACK);
+        surnameTextField.setFont(appFont);
+        mainPanel.add(surnameTextField);
+
+        descLabel = new JLabel("Index number:");
+        descLabel.setBounds(150, 180, 200, 50);
         descLabel.setForeground(new Color(1, 56, 128));
         descLabel.setFont(appFont);
         mainPanel.add(descLabel);
 
         indexTextField = new JTextField();
-        indexTextField.setBounds(195, 305, 200, 40);
+        indexTextField.setBounds(300, 185, 200, 40);
         indexTextField.setForeground(Color.BLACK);
         indexTextField.setFont(appFont);
         mainPanel.add(indexTextField);
 
-        editButton = new JButton("Edit student");
-        editButton.setLayout(null);
-        editButton.setBounds(450, 300, 200, 50);
-        editButton.setBackground(new Color(1, 56, 128));
-        editButton.setForeground(Color.WHITE);
-        editButton.setFont(appFont);
-        mainPanel.add(editButton);
+        descLabel = new JLabel("Group:");
+        descLabel.setBounds(150, 230, 200, 50);
+        descLabel.setForeground(new Color(1, 56, 128));
+        descLabel.setFont(appFont);
+        mainPanel.add(descLabel);
+
+        groupTextField = new JTextField();
+        groupTextField.setBounds(225, 235, 200, 40);
+        groupTextField.setForeground(Color.BLACK);
+        groupTextField.setFont(appFont);
+        mainPanel.add(groupTextField);
+
+        descLabel = new JLabel("E-mail:");
+        descLabel.setBounds(150, 280, 200, 50);
+        descLabel.setForeground(new Color(1, 56, 128));
+        descLabel.setFont(appFont);
+        mainPanel.add(descLabel);
+
+        emailTextField = new JTextField();
+        emailTextField.setBounds(225, 285, 200, 40);
+        emailTextField.setForeground(Color.BLACK);
+        emailTextField.setFont(appFont);
+        mainPanel.add(emailTextField);
+
+        saveButton = new JButton("Save");
+        saveButton.setLayout(null);
+        saveButton.setBounds(450, 300, 200, 50);
+        saveButton.setBackground(new Color(1, 56, 128));
+        saveButton.setForeground(Color.WHITE);
+        saveButton.setFont(appFont);
+        mainPanel.add(saveButton);
 
         closeButton = new JButton("Close");
         closeButton.setLayout(null);
@@ -165,31 +208,27 @@ public class EditStudentPage {
         mainPanel.add(closeButton);
     }
 
-    private void displayData() {
+    private void populateFieldsWithStudentData(int index) {
         try {
             Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/eduguide", "root", "");
-            String query = "SELECT groupNumber, surname, name, indexNumber, email FROM students ORDER BY groupNumber, surname";
+            String query = "SELECT name, surname, indexNumber, groupNumber, email FROM students WHERE indexNumber = ?";
             PreparedStatement preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setInt(1, index);
             ResultSet resultSet = preparedStatement.executeQuery();
 
-            DefaultTableModel model = new DefaultTableModel();
-            model.addColumn("Group");
-            model.addColumn("Surname");
-            model.addColumn("Name");
-            model.addColumn("Index Number");
-            model.addColumn("Email");
-
-            while (resultSet.next()) {
-                int groupNumber = resultSet.getInt("groupNumber");
-                String surname = resultSet.getString("surname");
+            if (resultSet.next()) {
                 String name = resultSet.getString("name");
-                int indexNumber = resultSet.getInt("indexNumber");
+                String surname = resultSet.getString("surname");
+                String indexNumber = resultSet.getString("indexNumber");
+                int groupNumber = resultSet.getInt("groupNumber");
                 String email = resultSet.getString("email");
 
-                model.addRow(new Object[]{groupNumber, surname, name, indexNumber, email});
+                nameTextField.setText(name);
+                surnameTextField.setText(surname);
+                indexTextField.setText(indexNumber);
+                groupTextField.setText(String.valueOf(groupNumber));
+                emailTextField.setText(email);
             }
-
-            studentTable.setModel(model);
 
             resultSet.close();
             preparedStatement.close();
@@ -199,24 +238,6 @@ public class EditStudentPage {
             ex.printStackTrace();
             JOptionPane.showMessageDialog(null, "Error: " + ex.getMessage());
         }
-    }
-
-    private void addTableSelectionListener() {
-        studentTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-            @Override
-            public void valueChanged(ListSelectionEvent e) {
-                if (!e.getValueIsAdjusting()) {
-                    int selectedRow = studentTable.getSelectedRow();
-                    if (selectedRow >= 0) {
-                        Object indexNumberObj = studentTable.getValueAt(selectedRow, 3);
-                        if (indexNumberObj != null) {
-                            String indexNumber = indexNumberObj.toString();
-                            indexTextField.setText(indexNumber);
-                        }
-                    }
-                }
-            }
-        });
     }
 
     private void openNewWindow() {
@@ -269,38 +290,78 @@ public class EditStudentPage {
             }
         });
 
-        editButton.addActionListener(new ActionListener() {
+        saveButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                String indexText = indexTextField.getText();
+                String name = nameTextField.getText();
+                String surname = surnameTextField.getText();
+                String indexNumberStr = indexTextField.getText();
+                String groupStr = groupTextField.getText();
+                String email = emailTextField.getText();
 
-                if (indexText.isEmpty()) {
-                    JOptionPane.showMessageDialog(null, "Index field is empty");
+                if (name.isEmpty() || surname.isEmpty() || indexNumberStr.isEmpty() || groupStr.isEmpty() || email.isEmpty()) {
+                    JOptionPane.showMessageDialog(null, "All fields must be filled out.");
                     return;
                 }
 
-                int index;
+                int indexNumber, groupNumber;
+                try {
+                    indexNumber = Integer.parseInt(indexNumberStr);
+                    groupNumber = Integer.parseInt(groupStr);
+                }
+                catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(null, "Invalid index or group number.");
+                    return;
+                }
+                if (!email.contains("@") || !email.contains(".")) {
+                    JOptionPane.showMessageDialog(null, "Invalid email format. Please enter a valid email address.");
+                    return;
+                }
+
+                Connection connection = null;
+                PreparedStatement preparedStatement = null;
 
                 try {
-                    index = Integer.parseInt(indexText);
-                } catch (NumberFormatException ex) {
-                    JOptionPane.showMessageDialog(null, "Invalid index number");
-                    return;
-                }
+                    connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/eduguide", "root", "");
+                    String updateQuery = "UPDATE students SET name = ?, surname = ?, indexNumber = ?, groupNumber = ?, email = ? WHERE indexNumber = ?";
+                    preparedStatement = connection.prepareStatement(updateQuery);
 
-                if (!isIndexExists(index)) {
-                    JOptionPane.showMessageDialog(null, "Index does not exist in the table");
-                    return;
-                }
+                    preparedStatement.setString(1, name);
+                    preparedStatement.setString(2, surname);
+                    preparedStatement.setInt(3, indexNumber);
+                    preparedStatement.setInt(4, groupNumber);
+                    preparedStatement.setString(5, email);
+                    preparedStatement.setInt(6, index);
 
-                frame.dispose();
-                new EditSelectedStudentPage(index);
+                    int updatedRows = preparedStatement.executeUpdate();
+                    if (updatedRows > 0) {
+                        JOptionPane.showMessageDialog(null, "Student information updated successfully.");
+                        frame.dispose();
+                        new StudentListPage();
+                    } else {
+                        JOptionPane.showMessageDialog(null, "No rows were updated.");
+                    }
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                    JOptionPane.showMessageDialog(null, "Database error: " + ex.getMessage());
+                } finally {
+                    try {
+                        if (preparedStatement != null) {
+                            preparedStatement.close();
+                        }
+                        if (connection != null) {
+                            connection.close();
+                        }
+                    } catch (SQLException ex) {
+                        ex.printStackTrace();
+                    }
+                }
             }
         });
 
         closeButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 frame.dispose();
-                new MainPage();
+                new EditStudentPage();
             }
         });
 
@@ -311,18 +372,7 @@ public class EditStudentPage {
         });
     }
 
-    private boolean isIndexExists(int index) {
-        DefaultTableModel model = (DefaultTableModel) studentTable.getModel();
-        for (int row = 0; row < model.getRowCount(); row++) {
-            int rowIndex = (int) model.getValueAt(row, 3); // Assuming index is in column 3
-            if (rowIndex == index) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     public static void main(String[] args) {
-        EditStudentPage app = new EditStudentPage();
     }
 }
+

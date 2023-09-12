@@ -2,6 +2,10 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 
 public class AddStudentPage {
     JFrame frame;
@@ -255,8 +259,61 @@ public class AddStudentPage {
 
         addButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                frame.dispose();
-                new StudentListPage();
+                String name = nameTextField.getText();
+                String surname = surnameTextField.getText();
+                String index = indexTextField.getText();
+                String group = groupTextField.getText();
+                String email = emailTextField.getText();
+
+                if (name.isEmpty() || surname.isEmpty() || index.isEmpty() || group.isEmpty() || email.isEmpty()) {
+                    JOptionPane.showMessageDialog(null, "All fields must be filled out.");
+                    return;
+                }
+
+                int indexNumber;
+                try {
+                    indexNumber = Integer.parseInt(index);
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(null, "Invalid input for index number. Please enter a valid integer.");
+                    return;
+                }
+
+                if (!email.contains("@") || !email.contains(".")) {
+                    JOptionPane.showMessageDialog(null, "Invalid email format. Please enter a valid email address.");
+                    return;
+                }
+
+                try {
+                    Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/eduguide", "root", "");
+
+                    String insertQuery = "INSERT INTO students (name, surname, indexNumber, groupNumber, email) VALUES (?, ?, ?, ?, ?)";
+                    PreparedStatement preparedStatement = connection.prepareStatement(insertQuery);
+
+                    preparedStatement.setString(1, name);
+                    preparedStatement.setString(2, surname);
+                    preparedStatement.setInt(3, Integer.parseInt(index));
+                    preparedStatement.setInt(4, Integer.parseInt(group));
+                    preparedStatement.setString(5, email);
+
+                    int rowsInserted = preparedStatement.executeUpdate();
+                    if (rowsInserted > 0) {
+                        JOptionPane.showMessageDialog(null, "Student added successfully!");
+                        frame.dispose();
+                        new StudentListPage();
+                    }
+                    else {
+                        JOptionPane.showMessageDialog(null, "Failed to add student.");
+                    }
+
+                    preparedStatement.close();
+                    connection.close();
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                    JOptionPane.showMessageDialog(null, "Error: " + ex.getMessage());
+                }
+                catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(null, "Invalid input for index or group number.");
+                }
             }
         });
 
@@ -269,6 +326,5 @@ public class AddStudentPage {
     }
 
     public static void main(String[] args) {
-        AddStudentPage app = new AddStudentPage();
     }
 }
