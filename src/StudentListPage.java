@@ -6,6 +6,7 @@ import java.awt.event.ActionListener;
 public class StudentListPage {
     JFrame frame;
     JPanel leftPanel, upperPanel, mainPanel;
+    JLabel infoLabel;
     JButton menuButton, addStudentButton, editStudentButton, removeStudentButton, studentListButton, gradesButton, editGradesButton, exitButton;
     Font appFont = new Font("Arial", Font.TRUETYPE_FONT, 22);
 
@@ -52,7 +53,7 @@ public class StudentListPage {
         menuButton.setFont(menuFont);
         frame.add(menuButton);
 
-        studentListButton = new JButton("Student List");
+        studentListButton = new JButton("Student list");
         studentListButton.setLayout(null);
         studentListButton.setBounds(0, 0, 200, 70);
         studentListButton.setBackground(new Color(0, 32, 74));
@@ -110,7 +111,12 @@ public class StudentListPage {
     }
 
     private void addComponents() {
-
+        infoLabel = new JLabel("Student list");
+        infoLabel.setBounds(40, 20, 200, 50);
+        infoLabel.setForeground(new Color(1, 56, 128));
+        Font infoFont = new Font("Comic Sans MS", Font.BOLD, 30);
+        infoLabel.setFont(infoFont);
+        mainPanel.add(infoLabel);
     }
 
     private void openNewWindow() {

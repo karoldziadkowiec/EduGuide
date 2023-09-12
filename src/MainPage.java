@@ -58,7 +58,7 @@ public class MainPage {
         menuButton.setFont(menuFont);
         frame.add(menuButton);
 
-        studentListButton = new JButton("Student List");
+        studentListButton = new JButton("Student list");
         studentListButton.setLayout(null);
         studentListButton.setBounds(0, 0, 200, 70);
         studentListButton.setBackground(new Color(0, 93, 215));
@@ -202,7 +202,7 @@ public class MainPage {
     }
 
     public static void main(String[] args) {
-        MainPage app = new MainPage();
+
     }
 }
 

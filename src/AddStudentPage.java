@@ -7,6 +7,9 @@ public class AddStudentPage {
     JFrame frame;
     JPanel leftPanel, upperPanel, mainPanel;
     JButton menuButton, addStudentButton, editStudentButton, removeStudentButton, studentListButton, gradesButton, editGradesButton, exitButton;
+    JLabel infoLabel, descLabel;
+    JTextField nameTextField, surnameTextField, indexTextField, groupTextField, emailTextField;
+    JButton addButton, closeButton;
     Font appFont = new Font("Arial", Font.TRUETYPE_FONT, 22);
 
     AddStudentPage() {
@@ -52,7 +55,7 @@ public class AddStudentPage {
         menuButton.setFont(menuFont);
         frame.add(menuButton);
 
-        studentListButton = new JButton("Student List");
+        studentListButton = new JButton("Student list");
         studentListButton.setLayout(null);
         studentListButton.setBounds(0, 0, 200, 70);
         studentListButton.setBackground(new Color(0, 93, 215));
@@ -110,7 +113,88 @@ public class AddStudentPage {
     }
 
     private void addComponents() {
+        infoLabel = new JLabel("Add student");
+        infoLabel.setBounds(40, 20, 200, 50);
+        infoLabel.setForeground(new Color(1, 56, 128));
+        Font infoFont = new Font("Comic Sans MS", Font.BOLD, 30);
+        infoLabel.setFont(infoFont);
+        mainPanel.add(infoLabel);
 
+        descLabel = new JLabel("Name:");
+        descLabel.setBounds(150, 80, 200, 50);
+        descLabel.setForeground(new Color(1, 56, 128));
+        descLabel.setFont(appFont);
+        mainPanel.add(descLabel);
+
+        nameTextField = new JTextField();
+        nameTextField.setBounds(220, 85, 200, 40);
+        nameTextField.setForeground(Color.BLACK);
+        nameTextField.setFont(appFont);
+        mainPanel.add(nameTextField);
+
+        descLabel = new JLabel("Surname:");
+        descLabel.setBounds(150, 130, 200, 50);
+        descLabel.setForeground(new Color(1, 56, 128));
+        descLabel.setFont(appFont);
+        mainPanel.add(descLabel);
+
+        surnameTextField = new JTextField();
+        surnameTextField.setBounds(250, 135, 200, 40);
+        surnameTextField.setForeground(Color.BLACK);
+        surnameTextField.setFont(appFont);
+        mainPanel.add(surnameTextField);
+
+        descLabel = new JLabel("Index number:");
+        descLabel.setBounds(150, 180, 200, 50);
+        descLabel.setForeground(new Color(1, 56, 128));
+        descLabel.setFont(appFont);
+        mainPanel.add(descLabel);
+
+        indexTextField = new JTextField();
+        indexTextField.setBounds(300, 185, 200, 40);
+        indexTextField.setForeground(Color.BLACK);
+        indexTextField.setFont(appFont);
+        mainPanel.add(indexTextField);
+
+        descLabel = new JLabel("Group:");
+        descLabel.setBounds(150, 230, 200, 50);
+        descLabel.setForeground(new Color(1, 56, 128));
+        descLabel.setFont(appFont);
+        mainPanel.add(descLabel);
+
+        groupTextField = new JTextField();
+        groupTextField.setBounds(225, 235, 200, 40);
+        groupTextField.setForeground(Color.BLACK);
+        groupTextField.setFont(appFont);
+        mainPanel.add(groupTextField);
+
+        descLabel = new JLabel("E-mail:");
+        descLabel.setBounds(150, 280, 200, 50);
+        descLabel.setForeground(new Color(1, 56, 128));
+        descLabel.setFont(appFont);
+        mainPanel.add(descLabel);
+
+        emailTextField = new JTextField();
+        emailTextField.setBounds(225, 285, 200, 40);
+        emailTextField.setForeground(Color.BLACK);
+        emailTextField.setFont(appFont);
+        mainPanel.add(emailTextField);
+
+        addButton = new JButton("Add");
+        addButton.setLayout(null);
+        addButton.setBounds(450, 330, 200, 50);
+        addButton.setBackground(new Color(1, 56, 128));
+        addButton.setForeground(Color.WHITE);
+        addButton.setFont(appFont);
+        mainPanel.add(addButton);
+
+        closeButton = new JButton("Close");
+        closeButton.setLayout(null);
+        closeButton.setBounds(450, 385, 200, 50);
+        closeButton.setBackground(new Color(1, 56, 128));
+        closeButton.setForeground(Color.WHITE);
+        closeButton.setFont(appFont);
+        mainPanel.add(closeButton);
     }
 
     private void openNewWindow() {
@@ -166,6 +250,20 @@ public class AddStudentPage {
         exitButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 frame.dispose();
+            }
+        });
+
+        addButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                frame.dispose();
+                new StudentListPage();
+            }
+        });
+
+        closeButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                frame.dispose();
+                new MainPage();
             }
         });
     }
