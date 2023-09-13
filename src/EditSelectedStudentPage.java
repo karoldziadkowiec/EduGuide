@@ -132,7 +132,7 @@ public class EditSelectedStudentPage {
         mainPanel.add(infoLabel);
 
         descLabel = new JLabel("Name:");
-        descLabel.setBounds(150, 80, 200, 50);
+        descLabel.setBounds(150, 80, 70, 50);
         descLabel.setForeground(new Color(1, 56, 128));
         descLabel.setFont(appFont);
         mainPanel.add(descLabel);
@@ -144,7 +144,7 @@ public class EditSelectedStudentPage {
         mainPanel.add(nameTextField);
 
         descLabel = new JLabel("Surname:");
-        descLabel.setBounds(150, 130, 200, 50);
+        descLabel.setBounds(150, 130, 100, 50);
         descLabel.setForeground(new Color(1, 56, 128));
         descLabel.setFont(appFont);
         mainPanel.add(descLabel);
@@ -156,7 +156,7 @@ public class EditSelectedStudentPage {
         mainPanel.add(surnameTextField);
 
         descLabel = new JLabel("Index number:");
-        descLabel.setBounds(150, 180, 200, 50);
+        descLabel.setBounds(150, 180, 150, 50);
         descLabel.setForeground(new Color(1, 56, 128));
         descLabel.setFont(appFont);
         mainPanel.add(descLabel);
@@ -168,7 +168,7 @@ public class EditSelectedStudentPage {
         mainPanel.add(indexTextField);
 
         descLabel = new JLabel("Group:");
-        descLabel.setBounds(150, 230, 200, 50);
+        descLabel.setBounds(150, 230, 70, 50);
         descLabel.setForeground(new Color(1, 56, 128));
         descLabel.setFont(appFont);
         mainPanel.add(descLabel);
@@ -180,7 +180,7 @@ public class EditSelectedStudentPage {
         mainPanel.add(groupTextField);
 
         descLabel = new JLabel("E-mail:");
-        descLabel.setBounds(150, 280, 200, 50);
+        descLabel.setBounds(150, 280, 70, 50);
         descLabel.setForeground(new Color(1, 56, 128));
         descLabel.setFont(appFont);
         mainPanel.add(descLabel);

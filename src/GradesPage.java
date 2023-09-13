@@ -147,21 +147,23 @@ public class GradesPage {
     private void displayData() {
         try {
             Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/eduguide", "root", "");
-            String query = "SELECT students.surname, students.name, grades.grade, grades.description FROM grades INNER JOIN students ON students.id = grades.student ORDER BY students.surname, grades.description";
+            String query = "SELECT students.groupNumber, students.surname, students.name, grades.grade, grades.description FROM grades INNER JOIN students ON students.id = grades.student ORDER BY students.groupNumber, students.surname, grades.description";
             PreparedStatement preparedStatement = connection.prepareStatement(query);
             ResultSet resultSet = preparedStatement.executeQuery();
 
             DefaultTableModel model = new DefaultTableModel();
+            model.addColumn("Group");
             model.addColumn("Student Name");
             model.addColumn("Grade");
             model.addColumn("Description");
 
             while (resultSet.next()) {
+                String group = resultSet.getString("groupNumber");
                 String studentName = resultSet.getString("name") + " " + resultSet.getString("surname");
                 String grade = resultSet.getString("grade");
                 String description = resultSet.getString("description");
 
-                model.addRow(new Object[]{studentName, grade, description});
+                model.addRow(new Object[]{group, studentName, grade, description});
             }
 
             gradesTable.setModel(model);

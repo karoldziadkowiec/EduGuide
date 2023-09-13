@@ -137,7 +137,7 @@ public class EditStudentPage {
         mainPanel.add(tableScrollPane);
 
         descLabel = new JLabel("Index:");
-        descLabel.setBounds(130, 300, 200, 50);
+        descLabel.setBounds(130, 300, 70, 50);
         descLabel.setForeground(new Color(1, 56, 128));
         descLabel.setFont(appFont);
         mainPanel.add(descLabel);

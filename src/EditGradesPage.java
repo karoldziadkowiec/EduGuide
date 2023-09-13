@@ -138,32 +138,24 @@ public class EditGradesPage {
 
         gradesTable = new JTable();
         tableScrollPane = new JScrollPane(gradesTable);
-        tableScrollPane.setBounds(30, 80, 630, 200);
+        tableScrollPane.setBounds(30, 80, 630, 190);
         mainPanel.add(tableScrollPane);
 
         descLabel = new JLabel("Grade:");
-        descLabel.setBounds(150, 300, 200, 50);
+        descLabel.setBounds(150, 280, 70, 50);
         descLabel.setForeground(new Color(1, 56, 128));
         descLabel.setFont(appFont);
         mainPanel.add(descLabel);
 
         gradeTextField = new JTextField();
-        gradeTextField.setBounds(220, 305, 200, 40);
+        gradeTextField.setBounds(220, 285, 200, 40);
         gradeTextField.setForeground(Color.BLACK);
         gradeTextField.setFont(appFont);
         mainPanel.add(gradeTextField);
 
-        closeButton = new JButton("Close");
-        closeButton.setLayout(null);
-        closeButton.setBounds(30, 355, 200, 50);
-        closeButton.setBackground(new Color(1, 56, 128));
-        closeButton.setForeground(Color.WHITE);
-        closeButton.setFont(appFont);
-        mainPanel.add(closeButton);
-
         editButton = new JButton("Edit grade");
         editButton.setLayout(null);
-        editButton.setBounds(450, 300, 200, 50);
+        editButton.setBounds(450, 275, 200, 50);
         editButton.setBackground(new Color(1, 56, 128));
         editButton.setForeground(Color.WHITE);
         editButton.setFont(appFont);
@@ -171,31 +163,41 @@ public class EditGradesPage {
 
         removeButton = new JButton("Remove grade");
         removeButton.setLayout(null);
-        removeButton.setBounds(450, 355, 200, 50);
+        removeButton.setBounds(450, 330, 200, 50);
         removeButton.setBackground(new Color(1, 56, 128));
         removeButton.setForeground(Color.WHITE);
         removeButton.setFont(appFont);
         mainPanel.add(removeButton);
+
+        closeButton = new JButton("Close");
+        closeButton.setLayout(null);
+        closeButton.setBounds(450, 385, 200, 50);
+        closeButton.setBackground(new Color(1, 56, 128));
+        closeButton.setForeground(Color.WHITE);
+        closeButton.setFont(appFont);
+        mainPanel.add(closeButton);
     }
 
     private void displayData() {
         try {
             Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/eduguide", "root", "");
-            String query = "SELECT students.surname, students.name, grades.grade, grades.description FROM grades INNER JOIN students ON students.id = grades.student ORDER BY students.surname, grades.description";
+            String query = "SELECT students.groupNumber, students.surname, students.name, grades.grade, grades.description FROM grades INNER JOIN students ON students.id = grades.student ORDER BY students.surname, grades.description";
             PreparedStatement preparedStatement = connection.prepareStatement(query);
             ResultSet resultSet = preparedStatement.executeQuery();
 
             DefaultTableModel model = new DefaultTableModel();
+            model.addColumn("Group");
             model.addColumn("Student Name");
             model.addColumn("Grade");
             model.addColumn("Description");
 
             while (resultSet.next()) {
+                String group = resultSet.getString("groupNumber");
                 String studentName = resultSet.getString("name") + " " + resultSet.getString("surname");
                 String grade = resultSet.getString("grade");
                 String description = resultSet.getString("description");
 
-                model.addRow(new Object[]{studentName, grade, description});
+                model.addRow(new Object[]{group, studentName, grade, description});
             }
 
             gradesTable.setModel(model);
@@ -217,7 +219,7 @@ public class EditGradesPage {
                 if (!e.getValueIsAdjusting()) {
                     int selectedRow = gradesTable.getSelectedRow();
                     if (selectedRow >= 0) {
-                        Object indexNumberObj = gradesTable.getValueAt(selectedRow, 1);
+                        Object indexNumberObj = gradesTable.getValueAt(selectedRow, 2);
                         if (indexNumberObj != null) {
                             String indexNumber = indexNumberObj.toString();
                             gradeTextField.setText(indexNumber);
@@ -287,15 +289,56 @@ public class EditGradesPage {
 
         editButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                frame.dispose();
-                new EditSelectedGradePage(grade);
+                String grade = gradeTextField.getText();
+
+                if (grade.isEmpty()) {
+                    JOptionPane.showMessageDialog(null, "Grade field is empty");
+                    return;
+                }
+
+                try {
+                    int id = getSelectedGradeId();
+                    if (id != -1) {
+                        frame.dispose();
+                        new EditSelectedGradePage(id);
+                    } else {
+                        JOptionPane.showMessageDialog(null, "Invalid grade or no grade selected.");
+                    }
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(null, "Invalid grade value");
+                }
             }
         });
 
         removeButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                frame.dispose();
-                new GradesPage();
+                String gradeToRemove = gradeTextField.getText();
+
+                if (gradeToRemove.isEmpty()) {
+                    JOptionPane.showMessageDialog(null, "Please select the grade from the table to remove.");
+                    return;
+                }
+
+                int selectedRow = gradesTable.getSelectedRow();
+                if (selectedRow == -1) {
+                    JOptionPane.showMessageDialog(null, "Please select a grade from the table.");
+                    return;
+                }
+
+                int confirmed = JOptionPane.showConfirmDialog(
+                        null,
+                        "Are you sure you want to remove the selected grade: " + gradeToRemove + "?",
+                        "Confirm Deletion",
+                        JOptionPane.YES_NO_OPTION
+                );
+
+                if (confirmed == JOptionPane.YES_OPTION) {
+                    String studentName = (String) gradesTable.getValueAt(selectedRow, 1);
+                    String description = (String) gradesTable.getValueAt(selectedRow, 3);
+
+                    removeGrade(studentName, description);
+                    displayData();
+                }
             }
         });
 
@@ -311,6 +354,65 @@ public class EditGradesPage {
                 frame.dispose();
             }
         });
+    }
+
+    private void removeGrade(String studentName, String description) {
+        try {
+            Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/eduguide", "root", "");
+            String deleteQuery = "DELETE FROM grades WHERE student = (SELECT id FROM students WHERE CONCAT(name, ' ', surname) = ?) AND description = ?";
+            PreparedStatement preparedStatement = connection.prepareStatement(deleteQuery);
+
+            preparedStatement.setString(1, studentName);
+            preparedStatement.setString(2, description);
+
+            int deletedRows = preparedStatement.executeUpdate();
+
+            if (deletedRows > 0) {
+                JOptionPane.showMessageDialog(null, "Grade removed successfully.");
+                frame.dispose();
+                new GradesPage();
+            } else {
+                JOptionPane.showMessageDialog(null, "No grade found.");
+            }
+
+            preparedStatement.close();
+            connection.close();
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Error: " + ex.getMessage());
+        }
+    }
+
+    private int getSelectedGradeId() {
+        int selectedRow = gradesTable.getSelectedRow();
+        if (selectedRow >= 0) {
+            String studentName = (String) gradesTable.getValueAt(selectedRow, 1);
+            String description = (String) gradesTable.getValueAt(selectedRow, 3);
+
+            try {
+                Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/eduguide", "root", "");
+                String query = "SELECT id FROM grades WHERE student = (SELECT id FROM students WHERE CONCAT(name, ' ', surname) = ?) AND description = ?";
+                PreparedStatement preparedStatement = connection.prepareStatement(query);
+
+                preparedStatement.setString(1, studentName);
+                preparedStatement.setString(2, description);
+
+                ResultSet resultSet = preparedStatement.executeQuery();
+                if (resultSet.next()) {
+                    int gradeId = resultSet.getInt("id");
+                    preparedStatement.close();
+                    connection.close();
+                    return gradeId;
+                }
+
+                preparedStatement.close();
+                connection.close();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+                JOptionPane.showMessageDialog(null, "Error: " + ex.getMessage());
+            }
+        }
+        return -1;
     }
 
     public static void main(String[] args) {

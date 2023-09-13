@@ -1,18 +1,32 @@
 import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class AddGradePage {
     JFrame frame;
     JPanel leftPanel, upperPanel, mainPanel;
-    JLabel infoLabel;
+    JLabel infoLabel, descLabel;
     JButton menuButton, addStudentButton, editStudentButton, removeStudentButton, studentListButton, gradesButton, editGradesButton, exitButton;
+    JButton addButton, closeButton;
+    JTextField indexTextField, gradeTextField, descriptionTextField;
     Font appFont = new Font("Arial", Font.TRUETYPE_FONT, 22);
+    JTable studentTable;
+    JScrollPane tableScrollPane;
 
     AddGradePage() {
         initializeFrame();
         addComponents();
+        displayData();
+        addTableSelectionListener();
         openNewWindow();
         frame.setVisible(true);
     }
@@ -111,12 +125,121 @@ public class AddGradePage {
     }
 
     private void addComponents() {
-        infoLabel = new JLabel("Edit grades");
+        infoLabel = new JLabel("Add grade");
         infoLabel.setBounds(40, 20, 200, 50);
         infoLabel.setForeground(new Color(1, 56, 128));
         Font infoFont = new Font("Comic Sans MS", Font.BOLD, 30);
         infoLabel.setFont(infoFont);
         mainPanel.add(infoLabel);
+
+        studentTable = new JTable();
+        tableScrollPane = new JScrollPane(studentTable);
+        tableScrollPane.setBounds(30, 80, 630, 200);
+        mainPanel.add(tableScrollPane);
+
+        descLabel = new JLabel("Index number:");
+        descLabel.setBounds(50, 280, 150, 50);
+        descLabel.setForeground(new Color(1, 56, 128));
+        descLabel.setFont(appFont);
+        mainPanel.add(descLabel);
+
+        indexTextField = new JTextField();
+        indexTextField.setBounds(200, 285, 200, 40);
+        indexTextField.setForeground(Color.BLACK);
+        indexTextField.setFont(appFont);
+        mainPanel.add(indexTextField);
+
+        descLabel = new JLabel("Grade:");
+        descLabel.setBounds(50, 325, 70, 50);
+        descLabel.setForeground(new Color(1, 56, 128));
+        descLabel.setFont(appFont);
+        mainPanel.add(descLabel);
+
+        gradeTextField = new JTextField();
+        gradeTextField.setBounds(120, 330, 200, 40);
+        gradeTextField.setForeground(Color.BLACK);
+        gradeTextField.setFont(appFont);
+        mainPanel.add(gradeTextField);
+
+        descLabel = new JLabel("Description:");
+        descLabel.setBounds(50, 370, 120, 50);
+        descLabel.setForeground(new Color(1, 56, 128));
+        descLabel.setFont(appFont);
+        mainPanel.add(descLabel);
+
+        descriptionTextField = new JTextField();
+        descriptionTextField.setBounds(170, 375, 200, 40);
+        descriptionTextField.setForeground(Color.BLACK);
+        descriptionTextField.setFont(appFont);
+        mainPanel.add(descriptionTextField);
+
+        addButton = new JButton("Add");
+        addButton.setLayout(null);
+        addButton.setBounds(450, 300, 200, 50);
+        addButton.setBackground(new Color(1, 56, 128));
+        addButton.setForeground(Color.WHITE);
+        addButton.setFont(appFont);
+        mainPanel.add(addButton);
+
+        closeButton = new JButton("Close");
+        closeButton.setLayout(null);
+        closeButton.setBounds(450, 360, 200, 50);
+        closeButton.setBackground(new Color(1, 56, 128));
+        closeButton.setForeground(Color.WHITE);
+        closeButton.setFont(appFont);
+        mainPanel.add(closeButton);
+    }
+
+    private void displayData() {
+        try {
+            Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/eduguide", "root", "");
+            String query = "SELECT groupNumber, surname, name, indexNumber FROM students ORDER BY groupNumber, surname";
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            DefaultTableModel model = new DefaultTableModel();
+            model.addColumn("Group");
+            model.addColumn("Surname");
+            model.addColumn("Name");
+            model.addColumn("Index Number");
+
+            while (resultSet.next()) {
+                int groupNumber = resultSet.getInt("groupNumber");
+                String surname = resultSet.getString("surname");
+                String name = resultSet.getString("name");
+                int indexNumber = resultSet.getInt("indexNumber");
+
+                model.addRow(new Object[]{groupNumber, surname, name, indexNumber});
+            }
+
+            studentTable.setModel(model);
+
+            resultSet.close();
+            preparedStatement.close();
+            connection.close();
+        }
+        catch (SQLException ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Error: " + ex.getMessage());
+        }
+    }
+
+    private void addTableSelectionListener() {
+        studentTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                if (!e.getValueIsAdjusting()) {
+                    int selectedRow = studentTable.getSelectedRow();
+                    if (selectedRow >= 0) {
+                        Object indexNumberObj = studentTable.getValueAt(selectedRow, 3);
+                        if (indexNumberObj != null) {
+                            String indexNumber = indexNumberObj.toString();
+                            indexTextField.setText(indexNumber);
+                        }
+                    }
+                }
+            }
+        });
     }
 
     private void openNewWindow() {
@@ -163,6 +286,94 @@ public class AddGradePage {
         });
 
         editGradesButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                frame.dispose();
+                new EditGradesPage();
+            }
+        });
+
+        addButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                String index = indexTextField.getText();
+                String grade = gradeTextField.getText();
+                String description = descriptionTextField.getText();
+
+                if (index.isEmpty() || grade.isEmpty() || description.isEmpty()) {
+                    JOptionPane.showMessageDialog(null, "All fields must be filled out.");
+                    return;
+                }
+
+                int indexNumber;
+                try {
+                    indexNumber = Integer.parseInt(index);
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(null, "Invalid input for index number. Please enter a valid integer.");
+                    return;
+                }
+
+                if (!grade.matches("\\d+\\.\\d+")) {
+                    JOptionPane.showMessageDialog(null, "Invalid grade format (X.X).");
+                    return;
+                }
+
+                Connection connection = null;
+                PreparedStatement preparedStatement = null;
+                ResultSet resultSet = null;
+
+                try {
+                    connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/eduguide", "root", "");
+
+                    // Retrieve the student's ID based on the index number
+                    String selectQuery = "SELECT id FROM students WHERE indexNumber = ?";
+                    preparedStatement = connection.prepareStatement(selectQuery);
+                    preparedStatement.setInt(1, indexNumber);
+                    resultSet = preparedStatement.executeQuery();
+
+                    int studentId = -1; // Default value
+                    if (resultSet.next()) {
+                        studentId = resultSet.getInt("id");
+                    } else {
+                        JOptionPane.showMessageDialog(null, "Student with index number " + indexNumber + " not found.");
+                        return;
+                    }
+
+                    // Insert the grade into the grades table
+                    String insertQuery = "INSERT INTO grades (student, grade, description) VALUES (?, ?, ?)";
+                    preparedStatement = connection.prepareStatement(insertQuery);
+                    preparedStatement.setInt(1, studentId);
+                    preparedStatement.setString(2, grade);
+                    preparedStatement.setString(3, description);
+
+                    int rowsInserted = preparedStatement.executeUpdate();
+                    if (rowsInserted > 0) {
+                        JOptionPane.showMessageDialog(null, "Grade added successfully!");
+                        frame.dispose();
+                        new GradesPage();
+                    } else {
+                        JOptionPane.showMessageDialog(null, "Failed to add grade.");
+                    }
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                    JOptionPane.showMessageDialog(null, "Database error: " + ex.getMessage());
+                } finally {
+                    try {
+                        if (resultSet != null) {
+                            resultSet.close();
+                        }
+                        if (preparedStatement != null) {
+                            preparedStatement.close();
+                        }
+                        if (connection != null) {
+                            connection.close();
+                        }
+                    } catch (SQLException ex) {
+                        ex.printStackTrace();
+                    }
+                }
+            }
+        });
+
+        closeButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 frame.dispose();
                 new EditGradesPage();
