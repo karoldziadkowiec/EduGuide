@@ -329,7 +329,7 @@ public class AddGradePage {
                     preparedStatement.setInt(1, indexNumber);
                     resultSet = preparedStatement.executeQuery();
 
-                    int studentId = -1; // Default value
+                    int studentId = -1;
                     if (resultSet.next()) {
                         studentId = resultSet.getInt("id");
                     } else {
@@ -337,7 +337,6 @@ public class AddGradePage {
                         return;
                     }
 
-                    // Insert the grade into the grades table
                     String insertQuery = "INSERT INTO grades (student, grade, description) VALUES (?, ?, ?)";
                     preparedStatement = connection.prepareStatement(insertQuery);
                     preparedStatement.setInt(1, studentId);
@@ -388,6 +387,5 @@ public class AddGradePage {
     }
 
     public static void main(String[] args) {
-        AddGradePage app = new AddGradePage();
     }
 }

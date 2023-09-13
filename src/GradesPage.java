@@ -243,6 +243,5 @@ public class GradesPage {
     }
 
     public static void main(String[] args) {
-        GradesPage app = new GradesPage();
     }
 }

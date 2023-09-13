@@ -243,6 +243,5 @@ public class StudentListPage {
     }
 
     public static void main(String[] args) {
-
     }
 }

@@ -326,6 +326,5 @@ public class AddStudentPage {
     }
 
     public static void main(String[] args) {
-        AddStudentPage app = new AddStudentPage();
     }
 }

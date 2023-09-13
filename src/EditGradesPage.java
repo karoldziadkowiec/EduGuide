@@ -17,7 +17,6 @@ public class EditGradesPage {
     Font appFont = new Font("Arial", Font.TRUETYPE_FONT, 22);
     JTable gradesTable;
     JScrollPane tableScrollPane;
-    String grade;
     EditGradesPage() {
         initializeFrame();
         addComponents();
@@ -416,6 +415,5 @@ public class EditGradesPage {
     }
 
     public static void main(String[] args) {
-        EditGradesPage app = new EditGradesPage();
     }
 }

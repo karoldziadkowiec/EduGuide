@@ -336,6 +336,5 @@ public class RemoveStudentPage {
     }
 
     public static void main(String[] args) {
-        RemoveStudentPage app = new RemoveStudentPage();
     }
 }

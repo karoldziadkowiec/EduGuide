@@ -314,7 +314,7 @@ public class EditStudentPage {
     private boolean isIndexExists(int index) {
         DefaultTableModel model = (DefaultTableModel) studentTable.getModel();
         for (int row = 0; row < model.getRowCount(); row++) {
-            int rowIndex = (int) model.getValueAt(row, 3); // Assuming index is in column 3
+            int rowIndex = (int) model.getValueAt(row, 3);
             if (rowIndex == index) {
                 return true;
             }
@@ -323,6 +323,5 @@ public class EditStudentPage {
     }
 
     public static void main(String[] args) {
-        EditStudentPage app = new EditStudentPage();
     }
 }
