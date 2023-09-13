@@ -6,40 +6,35 @@ Technologies used in the project: Java (Swing library), MySQL database language.
 
 Project features: entering the telephone number, shipping code, choosing the size of the package, the time for sending / receiving the package is counted down during acceptance, acceptance window, login function for the admin via PIN, preview of the status of boxes in the parcel locker. The List function was used to store data about lockers in the parcel locker. In the windows for entering the phone number, code and PIN, buttons 0-9 was added to make entering easier.
 
+Open Window:
+![Open Window](https://github.com/karoldziadkowiec/EduGuide/blob/master/photos/1.png)
+
 Main Window:
-![Main Window](https://github.com/karoldziadkowiec/EduGuide/blob/master/photos/1_.png)
+![Main Window](https://github.com/karoldziadkowiec/EduGuide/blob/master/photos/2.png)
 
-SENDING A PACKAGE<br/>
-Entering a phone number:
-![Entering a phone number](https://github.com/karoldziadkowiec/EduGuide/blob/master/photos/2_.png)
+Adding student:
+![Adding student](https://github.com/karoldziadkowiec/EduGuide/blob/master/photos/3.png)
 
-Entering the shipment code:
-![Entering the shipment code](https://github.com/karoldziadkowiec/EduGuide/blob/master/photos/3.png)
+Student list:
+![Student list](https://github.com/karoldziadkowiec/EduGuide/blob/master/photos/4.png)
 
-Choosing a package size:
-![Choosing a package size](https://github.com/karoldziadkowiec/EduGuide/blob/master/photos/4.png)
+Editing student page:
+![Editing student page](https://github.com/karoldziadkowiec/EduGuide/blob/master/photos/5.png)
 
-30 sec time for putting the package in the locker:
-![Time fot putting the package in the locker](https://github.com/karoldziadkowiec/EduGuide/blob/master/photos/5.png)
+Editing student data:
+![Editing student data](https://github.com/karoldziadkowiec/EduGuide/blob/master/photos/6.png)
 
-Confirmation window:
-![Confirmation window](https://github.com/karoldziadkowiec/EduGuide/blob/master/photos/6.png)
+Removing student:
+![Removing student](https://github.com/karoldziadkowiec/EduGuide/blob/master/photos/7.png)
 
-Admin panel:
-![Admin panel](https://github.com/karoldziadkowiec/EduGuide/blob/master/photos/7.png)
+Edit grades page:
+![Edit grades page](https://github.com/karoldziadkowiec/EduGuide/blob/master/photos/8.png)
 
-Parcel locker data in the admin panel after putting the package in the locker:
-![Parcel locker data in the admin panel](https://github.com/karoldziadkowiec/EduGuide/blob/master/photos/8.png)
+Editing grade:
+![Editing grade](https://github.com/karoldziadkowiec/EduGuide/blob/master/photos/9.png)
 
-PICKING UP A PACKAGE<br/>
-Entering a phone number:
-![Entering a phone number:](https://github.com/karoldziadkowiec/EduGuide/blob/master/photos/9.png)
+Adding grade:
+![Adding grade](https://github.com/karoldziadkowiec/EduGuide/blob/master/photos/10.png)
 
-Entering the shipment code::
-![Entering the shipment code:](https://github.com/karoldziadkowiec/EduGuide/blob/master/photos/10.png)
-
-Time fot picking up the package from the locker:
-![Time fot picking up the package from the locker](https://github.com/karoldziadkowiec/EduGuide/blob/master/photos/11.png)
-
-Confirmation window:
-![Confirmation window](https://github.com/karoldziadkowiec/EduGuide/blob/master/photos/12.png)
+Listing grades:
+![Listing grades](https://github.com/karoldziadkowiec/EduGuide/blob/master/photos/11.png)
