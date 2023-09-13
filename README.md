@@ -1,12 +1,12 @@
 # EduGuide
 
-The project is a window application with an interface for the "ParcelSwift" stationary parcel locker. This project perfectly illustrates how modern information technologies can significantly help everyday processes. The application is designed to streamline the process of sending and receiving parcels at a stationary point. Thanks to the graphical interface, the application is easy to use, which increases the efficiency of parcel collection by customers. This application is an innovative idea in the world. It perfectly meets the requirements of people in the 21st century.
+The project is a window application with an interface for the lecturer. This is a type of organizer. This project perfectly illustrates how modern information technologies can significantly support everyday work processes. The application aims to improve the process of entering student grades. Thanks to the graphical interface, the application is easy to use, which increases the efficiency of the lecturer's work. It perfectly meets the requirements of people of the 21st century.
 
 Technologies used in the project: Java (Swing library), MySQL database language.
 
-Project features: entering the telephone number, shipping code, choosing the size of the package, the time for sending / receiving the package is counted down during acceptance, acceptance window, login function for the admin via PIN, preview of the status of boxes in the parcel locker. The List function was used to store data about lockers in the parcel locker. In the windows for entering the phone number, code and PIN, buttons 0-9 was added to make entering easier.
+Application functions include: adding students to the database, editing student data, deleting students, listing students, adding grades for students, editing and deleting grades, listing all grades.
 
-Open Window:
+Open Window:<br/>
 ![Open Window](https://github.com/karoldziadkowiec/EduGuide/blob/master/photos/1.png)
 
 Main Window:
@@ -18,7 +18,7 @@ Adding student:
 Student list:
 ![Student list](https://github.com/karoldziadkowiec/EduGuide/blob/master/photos/4.png)
 
-Editing student page:
+Edit student page:
 ![Editing student page](https://github.com/karoldziadkowiec/EduGuide/blob/master/photos/5.png)
 
 Editing student data:
