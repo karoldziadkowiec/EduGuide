@@ -310,26 +310,29 @@ public class RemoveStudentPage {
     private void removeStudent(String indexToRemove) {
         try {
             Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/eduguide", "root", "");
-            String deleteQuery = "DELETE FROM students WHERE indexNumber = ?";
-            PreparedStatement preparedStatement = connection.prepareStatement(deleteQuery);
 
-            preparedStatement.setString(1, indexToRemove);
+            String deleteGradesQuery = "DELETE FROM grades WHERE student IN (SELECT id FROM students WHERE indexNumber = ?)";
+            PreparedStatement deleteGradesStatement = connection.prepareStatement(deleteGradesQuery);
+            deleteGradesStatement.setString(1, indexToRemove);
+            int deletedGradesRows = deleteGradesStatement.executeUpdate();
+            deleteGradesStatement.close();
 
-            int deletedRows = preparedStatement.executeUpdate();
+            String deleteStudentQuery = "DELETE FROM students WHERE indexNumber = ?";
+            PreparedStatement deleteStudentStatement = connection.prepareStatement(deleteStudentQuery);
+            deleteStudentStatement.setString(1, indexToRemove);
+            int deletedStudentRows = deleteStudentStatement.executeUpdate();
+            deleteStudentStatement.close();
 
-            if (deletedRows > 0) {
+            if (deletedStudentRows > 0) {
                 JOptionPane.showMessageDialog(null, "Student removed successfully.");
                 frame.dispose();
                 new StudentListPage();
-            }
-            else {
+            } else {
                 JOptionPane.showMessageDialog(null, "No student with the provided index number found.");
             }
 
-            preparedStatement.close();
             connection.close();
-        }
-        catch (SQLException ex) {
+        } catch (SQLException ex) {
             ex.printStackTrace();
             JOptionPane.showMessageDialog(null, "Error: " + ex.getMessage());
         }

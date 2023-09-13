@@ -180,7 +180,7 @@ public class EditGradesPage {
     private void displayData() {
         try {
             Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/eduguide", "root", "");
-            String query = "SELECT students.groupNumber, students.surname, students.name, grades.grade, grades.description FROM grades INNER JOIN students ON students.id = grades.student ORDER BY students.surname, grades.description";
+            String query = "SELECT students.groupNumber, students.surname, students.name, grades.grade, grades.description FROM grades INNER JOIN students ON students.id = grades.student ORDER BY students.groupNumber, students.surname, grades.description";
             PreparedStatement preparedStatement = connection.prepareStatement(query);
             ResultSet resultSet = preparedStatement.executeQuery();
 
